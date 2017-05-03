@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import MLSData, { MLSMedia } from "react-mlsdata";
+import MLSData, { MLSMedia, MLSCount } from "react-mlsdata";
 import { authtoken } from "./_config.js";
 
 
@@ -7,6 +7,13 @@ class Values extends Component {
   render() {
     console.log(this.props.data);
 
+    return <div />;
+  }
+}
+
+class Pagination extends Component {
+  render() {
+    console.log(this.props.data["@odata.count"]);
     return <div />;
   }
 }
@@ -35,7 +42,33 @@ class Thumbnail extends Component {
         )}
       </MLSMedia>
     )
+  }
+}
 
+class AgentPhoto extends Component {
+  render() {
+    return (
+      <MLSMedia MediaType="Thumbnail" MemberKeyNumeric={this.props.MemberKeyNumeric} limit="1" token={authtoken}>
+        {({ loading, error, data }) => (
+          <div>
+            {error && 
+              <img src="https://placeholdit.imgix.net/~text?txtsize=33&txt=Image%20Not%20Found&w=150&h=150" alt="Missing Thumbnail" />
+            }
+            {data &&
+              <div>
+                { !data.value.length &&
+                  <img src="https://placeholdit.imgix.net/~text?txtsize=33&txt=Image%20Not%20Found&w=150&h=150" alt="Missing Thumbnail" />
+                }
+
+                { data.value.length !== 0 &&
+                  <img src={data.value[0].MediaURL} alt="Agent Thumbnail"/>
+                }
+              </div>
+            }
+          </div>
+        )}
+      </MLSMedia>
+    )
   }
 }
 
@@ -61,6 +94,12 @@ class Listings extends Component {
               </p>
               <p>{listing.PublicRemarks}</p>
             </div>
+          </div>
+
+          <div className="media-right">
+            <figure className="image is-64x64">
+              <AgentPhoto MemberKeyNumeric={listing.ListAgentKeyNumeric} />
+            </figure>
           </div>
         </article>
       </div>
@@ -96,9 +135,15 @@ class App extends Component {
             "City eq ResourceEnums.City'SanRamon'"
           ]
     }};
+    
+    // Counts can also be inlined with the query
+    const queryWithCount = {
+      count: true,
+      ...query
+    }
     return (
       <div className="container mt2">
-        <MLSData collection="Property" token={authtoken} query={query}>
+        <MLSData collection="Property" token={authtoken} query={queryWithCount}>
           {({ loading, error, data }) => (
             <div>
 
@@ -125,6 +170,15 @@ class App extends Component {
                 <div className="container">
 
                   <Values data={data} />
+                  <MLSCount collection="Property" token={authtoken} query={query}>
+                    {({ data }) => (
+                      <div>
+                        { data &&
+                        <Pagination data={data} />
+                      }
+                      </div>
+                    )}
+                  </MLSCount>
 
                   <div className="columns">
 
