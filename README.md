@@ -1,6 +1,6 @@
 # React MLSData Sample App
 
-A basic project for using mls-data components in a react app.
+A basic project for using [react-mlsdata component](https://github.com/psynewave/react-mlsdata) in a react app.
 
 ## Getting Started
 
