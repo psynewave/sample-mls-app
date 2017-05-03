@@ -1,12 +1,41 @@
 import React, { Component } from "react";
-import MLSData from "react-mlsdata";
+import MLSData, { MLSMedia } from "react-mlsdata";
 import { authtoken } from "./_config.js";
+
 
 class Values extends Component {
   render() {
     console.log(this.props.data);
 
     return <div />;
+  }
+}
+
+class Thumbnail extends Component {
+  render() {
+    return (
+      <MLSMedia MediaType="Thumbnail" ListingKeyNumeric={this.props.ListingKeyNumeric} limit="1" token={authtoken}>
+        {({ loading, error, data }) => (
+          <div>
+            {error && 
+              <img src="https://placeholdit.imgix.net/~text?txtsize=33&txt=Image%20Not%20Found&w=150&h=150" alt="Missing Thumbnail" />
+            }
+            {data &&
+              <div>
+                { !data.value.length &&
+                  <img src="https://placeholdit.imgix.net/~text?txtsize=33&txt=Image%20Not%20Found&w=150&h=150" alt="Missing Thumbnail" />
+                }
+
+                { data.value.length !== 0 &&
+                  <img src={data.value[0].MediaURL} alt="Listing Thumbnail"/>
+                }
+              </div>
+            }
+          </div>
+        )}
+      </MLSMedia>
+    )
+
   }
 }
 
@@ -17,6 +46,12 @@ class Listings extends Component {
     var listingCollection = listings.map(listing => (
       <div className="box" key={Math.floor(Math.random() * Date.now()) + 1}>
         <article className="media">
+        <div className="media-left">
+          <figure className="image is-64x64">
+            <Thumbnail ListingKeyNumeric={listing.ListingKeyNumeric} />
+          </figure>
+        </div>
+          
           <div className="media-content">
             <div className="content">
               <p>
@@ -40,7 +75,7 @@ class Count extends Component {
     return (
       <h3>
         <strong>
-          {this.props.data.length} Listings Retrieved v0.1.2
+          {this.props.data.length} Listings Retrieved
         </strong>
       </h3>
     );
@@ -55,7 +90,12 @@ class App extends Component {
 
   render() {
     // Auth token from https://identity.mlslistings.com/Openid/connect/token
-   const query = { filter: { ListOfficeKeyNumeric: 101625 } };
+   const query = { filter: { 
+      and: [
+            { ListingId: { ne: null } },
+            "City eq ResourceEnums.City'SanRamon'"
+          ]
+    }};
     return (
       <div className="container mt2">
         <MLSData collection="Property" token={authtoken} query={query}>
@@ -67,7 +107,6 @@ class App extends Component {
                   <div className="column is-12">
                     <h3 className="center">
                       <i className="fa fa-spinner fa-spin fa-3x fa-fw" />
-                      {" "}
                       Loading...
                     </h3>
                   </div>
