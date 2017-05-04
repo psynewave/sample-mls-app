@@ -235,7 +235,8 @@ class ListingDemo extends Component {
   const query = { filter: { 
     and: [
           { ListingId: { ne: null } },
-          "City eq ResourceEnums.City'SanRamon'"
+          "City eq ResourceEnums.City'SanRamon'",
+          "(StandardStatus eq ResourceEnums.StandardStatus'Active')"
         ]
   }};
   
